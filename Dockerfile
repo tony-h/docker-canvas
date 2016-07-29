@@ -51,8 +51,6 @@ ADD canvas_apache.conf /etc/apache2/sites-available/canvas.conf
 ADD apache2-wrapper.sh /root/apache2
 RUN a2dissite 000-default
 RUN a2ensite canvas
-EXPOSE 80
-EXPOSE 443
 RUN cd /opt/canvas-lms/vendor && git clone https://github.com/instructure/QTIMigrationTool.git QTIMigrationTool
 RUN chmod +x /opt/canvas-lms/vendor/QTIMigrationTool/migrate.py
 CMD ["/bin/bash","/root/apache2"]
