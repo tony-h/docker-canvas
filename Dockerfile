@@ -3,9 +3,6 @@ FROM ubuntu:14.04
 
 RUN apt-get -y update && \
     apt-get -y install curl apt-transport-https ca-certificates && \
-    (curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -) &&  \
-    (echo 'deb https://deb.nodesource.com/node_0.12 trusty main' > /etc/apt/sources.list.d/nodesource.list) && \
-    (echo 'deb-src https://deb.nodesource.com/node_0.12 trusty main' >> /etc/apt/sources.list.d/nodesource.list) && \
     (apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7) && \
     (echo deb https://oss-binaries.phusionpassenger.com/apt/passenger trusty main > /etc/apt/sources.list.d/passenger.list) && \
     apt-get -y update && \
@@ -16,10 +13,12 @@ RUN apt-get -y update && \
     libapache2-mod-passenger apache2 python-lxml libsqlite3-dev \
     passenger passenger-dev nodejs ruby-multi-json make g++
 RUN apt-add-repository -y ppa:brightbox/ruby-ng
-RUN apt-get -y update && apt-get -y install ruby2.1 ruby2.1-dev 
+RUN apt-get -y update && apt-get -y install ruby2.2 ruby2.2-dev 
+RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+RUN apt-get install nodejs
 
 RUN cd /opt && git clone --depth 1 --branch stable https://github.com/instructure/canvas-lms.git
-RUN gem install bundler --version 1.11.2
+RUN gem install bundler --version 1.12.5
 RUN cd /opt/canvas-lms && bundle install --path vendor/bundle --without=sqlite
 ADD amazon_s3.yml /opt/canvas-lms/config/
 ADD database.yml /opt/canvas-lms/config/
@@ -53,4 +52,8 @@ RUN a2dissite 000-default
 RUN a2ensite canvas
 RUN cd /opt/canvas-lms/vendor && git clone https://github.com/instructure/QTIMigrationTool.git QTIMigrationTool
 RUN chmod +x /opt/canvas-lms/vendor/QTIMigrationTool/migrate.py
+
+EXPOSE 80
+EXPOSE 443
+
 CMD ["/bin/bash","/root/apache2"]
